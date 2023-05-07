@@ -25,7 +25,7 @@ SECRET_KEY = 'aj-vsd(e@3pov@6a)x99luwqc4ipci33z=)@uq0r=cqmj3qsh5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -125,6 +125,6 @@ STATIC_URL = '/static/'
 # Inform required to connect to CouchDB
 COUCHDB_USERNAME = 'jionghao'
 COUCHDB_PASSWORD = '123456'
-COUCHDB_HOST = '172.26.135.182'
+COUCHDB_HOST = '172.26.130.66'
 COUCHDB_PORT = '5984'
-COUCHDB_DBNAME = 'test_connect_mastodon'
+COUCHDB_DBNAME = ["sudo_homeless", "sudo_rental", "sudo_income", "sudo_employment", "twitter_homeless", "twitter_rental", "twitter_income", "twitter_employment"]
