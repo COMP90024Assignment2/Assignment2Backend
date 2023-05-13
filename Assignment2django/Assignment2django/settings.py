@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ConnectCouchdb.apps.ConnectcouchdbConfig',
+    'corsheaders'
     
 ]
 
@@ -49,6 +50,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware'
 ]
 
 ROOT_URLCONF = 'Assignment2django.urls'
@@ -122,9 +125,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+CORS_ALLOW_ALL_ORIGINS = True
 # Inform required to connect to CouchDB
 COUCHDB_USERNAME = 'jionghao'
 COUCHDB_PASSWORD = '123456'
-COUCHDB_HOST = '172.26.130.66'
+COUCHDB_HOST = {"major": {"sudo_twitter": '172.26.130.66'}, "replica": {"sudo_twitter": '172.26.133.200'}}
 COUCHDB_PORT = '5984'
 COUCHDB_DBNAME = ["sudo_homeless", "sudo_rental", "sudo_income", "sudo_employment", "twitter_homeless", "twitter_rental", "twitter_income", "twitter_employment"]

@@ -1,10 +1,17 @@
 import couchdb
 from couchdb.client import Document
+from django.conf import settings
 import json
-def get_couchdb_url(username, password, host, port):
+def get_couchdb_url(username, password, role, type, port):
+
+    host = settings.COUCHDB_HOST[role][type]
+    
     return f'http://{username}:{password}@{host}:{port}/'
 
-def connect_to_couchdb(username, password, host, port):
+def connect_to_couchdb(username, password, role, type, port):
+    
+    host = settings.COUCHDB_HOST[role][type]
+    
     url = f'http://{username}:{password}@{host}:{port}/'
     server = couchdb.Server(url)
     return server
@@ -82,4 +89,33 @@ def mongo_query(db,json_object):
     result = db.find(new_json_object)
     return result
     
-    
+def mongo_key_query(db,key):
+    result = []
+    for doc_id in db:
+        doc = db[doc_id]
+        if key in doc:
+            result.append(doc)
+    return result
+
+def upload_twitter_from_file(db_dict, file_name):
+    with open(file_name) as json_file:
+        json_file.readline()
+        while True:
+            try:
+                current_line = json_file.readline()
+                if current_line == "]" or current_line == "\n" or current_line == "":
+                    break
+                else:
+                    current_line = current_line[:-2]
+                    json_object = json.loads(current_line)
+                    if "homeless" in json_object:
+                        db_dict["homeless"].save(json_object)
+                    if "income" in json_object:
+                        db_dict["income"].save(json_object)
+                    if "rental" in json_object:
+                        db_dict["rental"].save(json_object)
+                    if "mortgage" in json_object:
+                        db_dict["mortgage"].save(json_object)
+            except json.JSONDecodeError:
+                print(f'Error decoding JSON for line: {current_line}')
+                continue  # skip to the next line
