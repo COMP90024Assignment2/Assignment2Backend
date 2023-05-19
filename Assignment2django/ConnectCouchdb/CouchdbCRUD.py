@@ -2,15 +2,16 @@ import couchdb
 from couchdb.client import Document
 from django.conf import settings
 import json
-def get_couchdb_url(username, password, role, type, port):
+import ijson
+def get_couchdb_url(username, password, role, port):
 
-    host = settings.COUCHDB_HOST[role][type]
+    host = settings.COUCHDB_HOST[role]
     
     return f'http://{username}:{password}@{host}:{port}/'
 
-def connect_to_couchdb(username, password, role, type, port):
+def connect_to_couchdb(username, password, role, port):
     
-    host = settings.COUCHDB_HOST[role][type]
+    host = settings.COUCHDB_HOST[role]
     
     url = f'http://{username}:{password}@{host}:{port}/'
     server = couchdb.Server(url)
@@ -97,25 +98,57 @@ def mongo_key_query(db,key):
             result.append(doc)
     return result
 
+# def upload_twitter_from_file(db_dict, file_name):
+#     with open(file_name, "r", encoding="UTF-8") as json_file:
+#         json_file.readline()
+#         while True:
+#             try:
+#                 current_line = json_file.readline()
+#                 if current_line == "]" or current_line == "\n" or current_line == "":
+#                     break
+#                 else:
+#                     current_line = current_line[:-2]
+#                     json_object = json.loads(current_line)
+#                     if "homeless" in json_object:
+#                         db_dict["homeless"].save(json_object)
+#                     if "income" in json_object:
+#                         db_dict["income"].save(json_object)
+#                     if "rental" in json_object:
+#                         db_dict["rental"].save(json_object)
+#                     if "mortgage" in json_object:
+#                         db_dict["mortgage"].save(json_object)
+#             except json.JSONDecodeError:
+#                 print(f'Error decoding JSON for line: {current_line}')
+#                 continue  # skip to the next line
+
 def upload_twitter_from_file(db_dict, file_name):
-    with open(file_name) as json_file:
-        json_file.readline()
-        while True:
+    with open(file_name, 'r', encoding='UTF-8') as json_file:
+        # use ijson to iteratively parse the json file
+        objects = ijson.items(json_file, 'item')
+
+        for json_object in objects:
             try:
-                current_line = json_file.readline()
-                if current_line == "]" or current_line == "\n" or current_line == "":
-                    break
-                else:
-                    current_line = current_line[:-2]
-                    json_object = json.loads(current_line)
-                    if "homeless" in json_object:
-                        db_dict["homeless"].save(json_object)
-                    if "income" in json_object:
-                        db_dict["income"].save(json_object)
-                    if "rental" in json_object:
-                        db_dict["rental"].save(json_object)
-                    if "mortgage" in json_object:
-                        db_dict["mortgage"].save(json_object)
-            except json.JSONDecodeError:
-                print(f'Error decoding JSON for line: {current_line}')
-                continue  # skip to the next line
+                if "homeless" in json_object:
+                    db_dict["homeless"].save(json_object)
+                if "income" in json_object:
+                    db_dict["income"].save(json_object)
+                if "rental" in json_object:
+                    db_dict["rental"].save(json_object)
+                if "mortgage" in json_object:
+                    db_dict["mortgage"].save(json_object)
+            except Exception as e:
+                print(f'Error processing JSON object: {e}')
+                continue  # skip to the next object
+            
+def get_mapreduce_result(db, design_doc_id, view_name):
+
+    # design_doc_id = 'twitter_rental_full_name'
+    # view_name = 'twitter_rental_full_name'
+    design_doc_id = '_design/' + design_doc_id
+    view_name = '_view/' + view_name
+    view = db.view(f'{design_doc_id}/{view_name}', group=True)
+    documents = []
+    #documents = [ documents.append({"gcc": row.key, "amount": row.value}) for row in view]
+    for row in view:
+        documents.append({"gcc": row.key, "amount": row.value})
+    return documents
