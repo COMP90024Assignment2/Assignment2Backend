@@ -35,6 +35,12 @@
 - name: Add host
   ansible.builtin.add_host:
     name: "{{ item.server.access_ipv4 }}"
-    groups: COMP90024
+    groups: instances
   loop: "{{ os_instance.results }}"
   when: item.server is defined
+
+- name: create file
+  become: yes
+  template:
+    src: instance-hosts.j2
+    dest: "{{ instance_hosts.ini }}"
