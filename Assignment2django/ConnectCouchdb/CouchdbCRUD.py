@@ -150,37 +150,35 @@ def get_mastodon_mapreduce_result(db, dbname):
 
 def create_new_mastodon_mapreduce(server, dbname):
     
-    db = server.create(dbname)
-    map_function = '''function (doc) {
+    db = server[dbname]
 
-        const formatDate = (dateString) => {
-            let date = new Date(dateString);
-            let year = date.getFullYear();
-            let month = (1 + date.getMonth()).toString().padStart(2, '0');
-            let day = date.getDate().toString().padStart(2, '0');
-            
-            return year + '-' + month + '-' + day;
-        }
-        const formattedDate = formatDate(doc.created_at)
-        emit(formattedDate, 1)
-        
-        }'''
-        
-    reduce_function = '''function(keys, values, rereduce) {
-        return sum(values);
-        }'''
-        
+    map_function = '''function (doc) {
+        var date = new Date(doc.created_at);
+        var year = date.getFullYear();
+        var month = (1 + date.getMonth()).toString().padStart(2, '0');
+        var day = date.getDate().toString().padStart(2, '0');
+        emit(year + '-' + month + '-' + day, 1);
+    }'''
+
+    reduce_function = '_sum'
+
     design = {
-        f"_id": '_design/{dbname}_design',
-        "views": {
-            f"{dbname}_view": {
-            "map": map_function,
-            "reduce": reduce_function
+        '_id': '_design/{dbname}_test'.format(dbname=dbname),
+        'views': {
+            '{dbname}_test'.format(dbname=dbname): {
+                'map': map_function,
+                'reduce': reduce_function
             }
         }
     }
-    
-    db.save(design)
+
+    try:
+        db.save(design)
+    except couchdb.http.ResourceConflict:
+        old = db['_design/{dbname}_test'.format(dbname=dbname)]
+        design['_rev'] = old.rev
+        db.save(design)
+
     
         
         
