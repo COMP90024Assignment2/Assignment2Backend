@@ -1,0 +1,14 @@
+# git clone 
+---
+- name: Creates ~COMP90024 directory
+  ansible.builtin.file:
+    path: '{{ harvester_working_directory }}'
+    state: directory
+    mode: '0755'
+
+
+- name: clone git repo to harvester node
+  ansible.builtin.git:
+    repo: https://github.com/COMP90024Assignment2/Assignment2DataProcessing.git
+    dest: '{{ harvester_working_directory }}'
+    force: yes

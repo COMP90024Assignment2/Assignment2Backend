@@ -1,0 +1,22 @@
+ansible-playbook [core 2.14.5]
+  config file = None
+  configured module search path = ['/Users/sennhang/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /Users/sennhang/opt/anaconda3/envs/ccc/lib/python3.10/site-packages/ansible
+  ansible collection location = /Users/sennhang/.ansible/collections:/usr/share/ansible/collections
+  executable location = /Users/sennhang/opt/anaconda3/envs/ccc/bin/ansible-playbook
+  python version = 3.10.4 (main, Mar 31 2022, 03:38:35) [Clang 12.0.0 ] (/Users/sennhang/opt/anaconda3/envs/ccc/bin/python)
+  jinja version = 3.1.2
+  libyaml = True
+No config file found; using defaults
+Skipping callback 'default', as we already have a stdout callback.
+Skipping callback 'minimal', as we already have a stdout callback.
+Skipping callback 'oneline', as we already have a stdout callback.
+
+PLAYBOOK: deploy_db_and_harvester.yaml *****************************************
+1 plays in deploy_db_and_harvester.yaml
+
+PLAY [crawler] *****************************************************************
+skipping: no hosts matched
+
+PLAY RECAP *********************************************************************
+

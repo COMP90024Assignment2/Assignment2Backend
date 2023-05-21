@@ -1,0 +1,43 @@
+---
+# - name: test_cmd
+#   ansible.builtin.command:
+#     cmd: ls
+- name: Ensure directory exists
+  ansible.builtin.file:
+    path: '{{harvester_code_path}}/json_file'
+    state: directory
+
+
+- name: execute mastodon_au_data
+  ansible.builtin.command:
+    chdir: "{{harvester_code_path}}"
+    cmd: python3 "{{ harvester_code_path }}/code/mastodon_au_data.py"  
+  register: mastodon_au_data_result
+   
+
+- name: execute aus_social_data.py
+  ansible.builtin.command:
+    chdir: "{{harvester_code_path}}"
+    cmd: python3 "{{ harvester_code_path }}/code/aus_social_data.py"
+  register: aus_social_data_result
+
+
+# - name: execute the_blower_data.py
+#   ansible.builtin.command:
+#     chdir: "{{harvester_code_path}}"
+#     cmd: python3 "{{ harvester_code_path }}/the_blower_data.py"
+#   register: the_blower_data_result
+
+
+- name: execute mastodon_data_homeless.py
+  ansible.builtin.command:
+    chdir: "{{harvester_code_path}}"
+    cmd: python3 "{{ harvester_code_path }}/code/mastodon_data_homeless.py"
+  when: mastodon_au_data_result.rc==0 and aus_social_data_result.rc==0 #and the_blower_data_result.rc==0
+  register: mastodon_data_homeless_result
+
+
+- name: push combined json files to harvester_couchdb
+  ansible.builtin.command:
+    chdir: "{{harvester_code_path}}"
+    cmd: python3 "{{ harvester_code_path }}/code/push_data.py"

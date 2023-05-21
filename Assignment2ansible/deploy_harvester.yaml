@@ -1,0 +1,28 @@
+- hosts: harvester
+  gather_facts: true
+  vars_files:
+    - host_vars/config.yaml
+  roles:
+    - role: harvester_install
+    - role: harvester_git_clone
+    - role: harvester_data_collect
+    - role: harvester_mpi
+
+
+# - hosts: harvester
+#   gather_facts: true
+#   vars_files:
+#     - host_vars/config.yaml
+# #    - host_vars/deploy.yaml
+#   roles:
+#     - role: harvest_install
+#     - role: harvest_git_clone
+#     #- role: harvester_data_collect
+
+# - hosts: harvester
+#   gather_facts: true
+#   vars_files:
+#     - host_vars/config.yaml
+# #    - host_vars/deploy.yaml
+#   roles:
+#     - role: harvester_data_push

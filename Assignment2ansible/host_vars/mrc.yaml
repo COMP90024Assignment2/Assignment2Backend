@@ -1,0 +1,66 @@
+# Common vars
+availability_zone: melbourne-qh2-uom
+instance_image: bbaf16f8-2484-48d7-b455-42209cc4b8d2
+instance_key_name: Assignment2KEY
+instance_flavor: uom.general.1c8g
+
+# Volume
+volumes:
+  - vol_name: Assignment2BackendServer-vol
+    vol_size: 50
+  - vol_name: Assignment2InstanceLargeVolume-1-vol
+    vol_size: 70
+  - vol_name: Assignment2InstanceLargeVolume-2-vol
+    vol_size: 70
+  # - vol_name: demo-vol-2-2
+  #   vol_size: 60
+
+# Security group
+security_groups:
+  - name: ssh
+    description: "Allows SSH (port 22) from world"
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+  - name: http
+    description: "Allows HTTP (port 80) and HTTPS (port 443) from world"
+    protocol: tcp
+    port_range_min: 80
+    port_range_max: 80
+    remote_ip_prefix: 0.0.0.0/0
+  - name: port 6984
+    description: ""
+    protocol: tcp
+    port_range_min: 5984
+    port_range_max: 5984
+    remote_ip_prefix: 0.0.0.0/0
+  - name: port 4369
+    description: ""
+    protocol: tcp
+    port_range_min: 4369
+    port_range_max: 4369
+    remote_ip_prefix: 0.0.0.0/0
+  - name: port 9100_9200
+    description: ""
+    protocol: tcp
+    port_range_min: 9100
+    port_range_max: 9200
+    remote_ip_prefix: 0.0.0.0/0
+  - name: rdp
+    description: ""
+    protocol: tcp
+    port_range_min: 3389
+    port_range_max: 3389
+    remote_ip_prefix: 0.0.0.0/0
+
+# Instance
+instances:
+  - name: Assignment2BackendServer
+    volumes: ["Assignment2BackendServer-vol"]
+  - name: Assignment2InstanceLargeVolume-1
+    volumes: ["Assignment2InstanceLargeVolume-1-vol"]
+  - name: Assignment2InstanceLargeVolume-2
+    volumes: ["Assignment2InstanceLargeVolume-2-vol"]
+  # - name: demo-2
+  #   volumes: ["demo-vol-2-1"]
