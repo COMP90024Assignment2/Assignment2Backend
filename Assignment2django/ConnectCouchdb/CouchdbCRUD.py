@@ -3,15 +3,15 @@ from couchdb.client import Document
 from django.conf import settings
 import json
 import ijson
-def get_couchdb_url(username, password, role, port):
+def get_couchdb_url(username, password, role, type,  port):
 
-    host = settings.COUCHDB_HOST[role]
+    host = settings.COUCHDB_HOST[role][type]
     
     return f'http://{username}:{password}@{host}:{port}/'
 
-def connect_to_couchdb(username, password, role, port):
+def connect_to_couchdb(username, password, role, type, port):
     
-    host = settings.COUCHDB_HOST[role]
+    host = settings.COUCHDB_HOST[role][type]
     
     url = f'http://{username}:{password}@{host}:{port}/'
     server = couchdb.Server(url)
@@ -31,10 +31,14 @@ def delete_database(server, dbname):
         raise Exception("Database not found")
     
 def get_database(server, dbname):
-    if dbname in server:
-        return server[dbname]
-    else:
+    try:
+        if dbname in server:
+            return server[dbname]
+    except Exception as e:
+        print(e)
         raise Exception("Database not found")
+        
+        
 
 def get_document(db, doc_id) -> dict:
     return db.get(doc_id)
@@ -98,28 +102,7 @@ def mongo_key_query(db,key):
             result.append(doc)
     return result
 
-# def upload_twitter_from_file(db_dict, file_name):
-#     with open(file_name, "r", encoding="UTF-8") as json_file:
-#         json_file.readline()
-#         while True:
-#             try:
-#                 current_line = json_file.readline()
-#                 if current_line == "]" or current_line == "\n" or current_line == "":
-#                     break
-#                 else:
-#                     current_line = current_line[:-2]
-#                     json_object = json.loads(current_line)
-#                     if "homeless" in json_object:
-#                         db_dict["homeless"].save(json_object)
-#                     if "income" in json_object:
-#                         db_dict["income"].save(json_object)
-#                     if "rental" in json_object:
-#                         db_dict["rental"].save(json_object)
-#                     if "mortgage" in json_object:
-#                         db_dict["mortgage"].save(json_object)
-#             except json.JSONDecodeError:
-#                 print(f'Error decoding JSON for line: {current_line}')
-#                 continue  # skip to the next line
+
 
 def upload_twitter_from_file(db_dict, file_name):
     with open(file_name, 'r', encoding='UTF-8') as json_file:
@@ -140,15 +123,65 @@ def upload_twitter_from_file(db_dict, file_name):
                 print(f'Error processing JSON object: {e}')
                 continue  # skip to the next object
             
-def get_mapreduce_result(db, design_doc_id, view_name):
+def get_mapreduce_result(db, dbname):
+    gcc_list = ['1gsyd','2gmel' ,'3gbri', '4gade' , '5gper', '6ghob' , '7gdar', '8acte']
+    mapreduce = f'_design/{dbname}_design/_view/{dbname}_view'
 
-    # design_doc_id = 'twitter_rental_full_name'
-    # view_name = 'twitter_rental_full_name'
-    design_doc_id = '_design/' + design_doc_id
-    view_name = '_view/' + view_name
-    view = db.view(f'{design_doc_id}/{view_name}', group=True)
+    view = db.view(mapreduce, group=True)
     documents = []
-    #documents = [ documents.append({"gcc": row.key, "amount": row.value}) for row in view]
     for row in view:
-        documents.append({"gcc": row.key, "amount": row.value})
+        if (row.key in gcc_list):
+            documents.append({"gcc": row.key, "amount": row.value})
+        else:
+            documents.append({"gcc": "nan", "amount": row.value})
+            
+        
     return documents
+
+def get_mastodon_mapreduce_result(db, dbname):
+    mapreduce = f'_design/{dbname}_design/_view/{dbname}_view'
+
+    view = db.view(mapreduce, group=True)
+    documents = []
+    for row in view:
+        documents.append({"date": row.key, "amount": row.value})
+        
+    return documents
+
+def create_new_mastodon_mapreduce(server, dbname):
+    
+    db = server.create(dbname)
+    map_function = '''function (doc) {
+
+        const formatDate = (dateString) => {
+            let date = new Date(dateString);
+            let year = date.getFullYear();
+            let month = (1 + date.getMonth()).toString().padStart(2, '0');
+            let day = date.getDate().toString().padStart(2, '0');
+            
+            return year + '-' + month + '-' + day;
+        }
+        const formattedDate = formatDate(doc.created_at)
+        emit(formattedDate, 1)
+        
+        }'''
+        
+    reduce_function = '''function(keys, values, rereduce) {
+        return sum(values);
+        }'''
+        
+    design = {
+        f"_id": '_design/{dbname}_design',
+        "views": {
+            f"{dbname}_view": {
+            "map": map_function,
+            "reduce": reduce_function
+            }
+        }
+    }
+    
+    db.save(design)
+    
+        
+        
+    

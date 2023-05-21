@@ -7,4 +7,3 @@ const sudo_city = function (doc) {
     });
 }
 
-const 
