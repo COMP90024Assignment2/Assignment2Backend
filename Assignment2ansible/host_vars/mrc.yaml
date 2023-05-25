@@ -12,8 +12,8 @@ volumes:
     vol_size: 70
   - vol_name: Assignment2InstanceLargeVolume-2-vol
     vol_size: 70
-  # - vol_name: demo-vol-2-2
-  #   vol_size: 60
+  - vol_name: Assignment2FrontendServer-vol
+    vol_size: 30
 
 # Security group
 security_groups:
@@ -62,5 +62,7 @@ instances:
     volumes: ["Assignment2InstanceLargeVolume-1-vol"]
   - name: Assignment2InstanceLargeVolume-2
     volumes: ["Assignment2InstanceLargeVolume-2-vol"]
+  - name: Assignment2FrontendServer
+    volumes: ["Assignment2FrontendServer-vol"]
   # - name: demo-2
   #   volumes: ["demo-vol-2-1"]
